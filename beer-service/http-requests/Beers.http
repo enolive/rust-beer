@@ -1,0 +1,33 @@
+### find all beers
+
+GET http://localhost:8080/beers
+
+### find single beer
+
+GET http://localhost:8080/beers/64315f8c312c23cbd1c04792
+
+### create a new beer
+
+POST http://localhost:8080/beers
+Content-Type: application/json
+
+{
+  "brand": "Schanzenbräu",
+  "name": "Schanze Rot",
+  "strength": 4.9
+}
+
+### delete a beer
+
+DELETE http://localhost:8080/beers/6431690822ccd9b1501f36a6
+
+### update a beer
+
+PUT http://localhost:8080/beers/6431a2f6d0b5fb5433f45c89
+Content-Type: application/json
+
+{
+  "brand": "Schanzenbräu",
+  "name": "Schanze Rot",
+  "strength": 4.8
+}
