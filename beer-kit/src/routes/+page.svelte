@@ -3,30 +3,33 @@
   import EditBeer from '../lib/EditBeer.svelte'
   import type {Beer} from '../lib/types'
   import BeerTable from '../lib/BeerTable.svelte'
-  import {createBeer, deleteBeer, readAllBeers} from '../lib/api'
   import {guardNotNull} from '../lib/types.js'
   import type {PageData} from './$types'
   import {createQuery, useQueryClient} from '@tanstack/svelte-query'
+  import {getApi} from '../lib/api'
+  import {env} from '$env/dynamic/public'
 
   const client = useQueryClient()
+
+  const api = getApi(env.PUBLIC_API_URL)
 
   export let data: PageData
 
   const query = createQuery({
     queryKey: ['beers'],
-    queryFn: readAllBeers,
+    queryFn: api.readAllBeers,
     initialData: data.beers,
   })
 
   async function handleCreateBeer(e: CustomEvent) {
     const beer: Beer = e.detail
-    await createBeer(beer)
+    await api.createBeer(beer)
     await client.invalidateQueries({queryKey: ['beers']})
   }
 
   async function handleDeleteBeer(e: CustomEvent) {
     const beer: Beer = e.detail
-    await deleteBeer(guardNotNull(beer._id).$oid)
+    await api.deleteBeer(guardNotNull(beer._id).$oid)
     await client.invalidateQueries({queryKey: ['beers']})
   }
 </script>
