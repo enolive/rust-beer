@@ -18,6 +18,10 @@
   })
 </script>
 
+<svelte:head>
+  <title>🍺 Beer App 🍺</title>
+</svelte:head>
+
 <QueryClientProvider {client}>
   <Modal/>
   <header>
