@@ -5,6 +5,7 @@ use log::info;
 use mongodb::bson::doc;
 use mongodb::bson::oid::ObjectId;
 use mongodb::error::Result;
+use mongodb::results::UpdateResult;
 use mongodb::{Client, Collection, Cursor};
 
 use crate::model::Beer;
@@ -64,13 +65,14 @@ impl BeerRepository {
 
   pub(crate) async fn update_beer(&self, beer: Beer) -> Result<Option<Beer>> {
     let col = self.col.clone();
-    let updated = beer.clone();
     let filter = doc! {"_id": beer.id};
     let update = doc! {"$set": {"name": beer.name, "strength": beer.strength, "brand": beer.brand}};
     let result = col.update_one(filter, update, None).await?;
-    Ok(match result.matched_count {
-      0 => None,
-      _ => Some(updated),
-    })
+    match result {
+      UpdateResult {
+        matched_count: 0, ..
+      } => Ok(None),
+      _ => self.find_beer(beer.id.unwrap()).await,
+    }
   }
 }
