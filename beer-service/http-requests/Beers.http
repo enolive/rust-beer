@@ -2,6 +2,9 @@
 
 GET http://localhost:8080/beers
 
+### ssr
+GET http://localhost:8080/beers/ssr
+
 ### find single beer
 
 GET http://localhost:8080/beers/64315f8c312c23cbd1c04792

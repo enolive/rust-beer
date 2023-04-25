@@ -1,7 +1,8 @@
 use actix_web::http::header::LOCATION;
 use actix_web::web::{Data, Json, Path, ServiceConfig};
 use actix_web::{delete, error, get, post, put, HttpResponse, Responder, Result};
-use futures::TryFutureExt;
+use actix_web_lab::respond::NdJson;
+use futures::TryStreamExt;
 use mongodb::bson::oid::ObjectId;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -12,7 +13,7 @@ use crate::repository::BeerRepository;
 #[derive(OpenApi)]
 #[openapi(
   info(description = "Beer API", license(name = "MIT")),
-  paths(all_beers, single_beer, create_beer, update_beer, delete_beer),
+  paths(all_beers, stream_beers, single_beer, create_beer, update_beer, delete_beer),
   components(schemas(Beer, PartialBeer)),
   tags((name = "crate", description = "Beer API endpoints"))
 )]
@@ -23,6 +24,7 @@ pub fn configure(db: Data<BeerRepository>) -> impl FnOnce(&mut ServiceConfig) {
     config
       .app_data(db)
       .service(all_beers)
+      .service(stream_beers)
       .service(single_beer)
       .service(create_beer)
       .service(update_beer)
@@ -38,11 +40,29 @@ pub fn configure(db: Data<BeerRepository>) -> impl FnOnce(&mut ServiceConfig) {
 ))]
 #[get("/beers")]
 pub async fn all_beers(db: Data<BeerRepository>) -> Result<impl Responder> {
-  let beers = db
-    .find_all_beers()
+  let cursor = db
+    .stream_all_beers()
+    .await
+    .map_err(error::ErrorInternalServerError)?;
+  let beers: Vec<_> = cursor
+    .try_collect()
     .await
     .map_err(error::ErrorInternalServerError)?;
   Ok(HttpResponse::Ok().json(beers))
+}
+
+#[utoipa::path(
+responses(
+  (status = 200, description = "stream of beers", body = Beer, content_type = "application/x-ndjson"),
+),
+)]
+#[get("/beers/ssr")]
+pub async fn stream_beers(db: Data<BeerRepository>) -> Result<impl Responder> {
+  let cursor = db
+    .stream_all_beers()
+    .await
+    .map_err(error::ErrorInternalServerError)?;
+  Ok(NdJson::new(cursor).into_responder())
 }
 
 #[utoipa::path(
@@ -134,8 +154,8 @@ pub async fn update_beer(
   };
   let updated = db
     .update_beer(beer)
-    .map_err(error::ErrorInternalServerError)
-    .await?;
+    .await
+    .map_err(error::ErrorInternalServerError)?;
   Ok(match updated {
     None => HttpResponse::NoContent().finish(),
     Some(beer) => HttpResponse::Ok().json(beer),
