@@ -1,12 +1,11 @@
 use std::env;
 
 use dotenv::dotenv;
-use futures::TryStreamExt;
 use log::info;
 use mongodb::bson::doc;
 use mongodb::bson::oid::ObjectId;
 use mongodb::error::Result;
-use mongodb::{Client, Collection};
+use mongodb::{Client, Collection, Cursor};
 
 use crate::model::Beer;
 
@@ -33,11 +32,10 @@ impl BeerRepository {
     BeerRepository { col }
   }
 
-  pub(crate) async fn find_all_beers(&self) -> Result<Vec<Beer>> {
+  pub(crate) async fn stream_all_beers(&self) -> Result<Cursor<Beer>> {
     let col = self.col.clone();
     let cursor = col.find(None, None).await?;
-    let beers: Vec<Beer> = cursor.try_collect().await?;
-    Ok(beers)
+    Ok(cursor)
   }
 
   pub(crate) async fn find_beer(&self, id: ObjectId) -> Result<Option<Beer>> {
