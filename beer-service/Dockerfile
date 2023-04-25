@@ -1,4 +1,4 @@
-FROM rust:1.63 as builder
+FROM rust:1.64 as builder
 WORKDIR /usr/src/app
 RUN cargo init
 ADD Cargo.toml Cargo.lock ./
