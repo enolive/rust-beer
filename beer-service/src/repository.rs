@@ -63,16 +63,4 @@ impl BeerRepository {
     col.delete_one(filter, None).await?;
     Ok(())
   }
-
-  pub(crate) async fn update_beer(&self, beer: Beer) -> Result<Option<Beer>> {
-    let col = self.col.clone();
-    let updated = beer.clone();
-    let filter = doc! {"_id": beer.id};
-    let update = doc! {"$set": {"name": beer.name, "strength": beer.strength}};
-    let result = col.update_one(filter, update, None).await?;
-    Ok(match result.matched_count {
-      0 => None,
-      _ => Some(updated),
-    })
-  }
 }

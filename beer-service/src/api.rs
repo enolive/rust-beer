@@ -1,7 +1,6 @@
 use actix_web::http::header::LOCATION;
 use actix_web::web::{Data, Json, Path, ServiceConfig};
-use actix_web::{delete, error, get, post, put, HttpResponse, Responder, Result};
-use futures::TryFutureExt;
+use actix_web::{delete, error, get, post, HttpResponse, Responder, Result};
 use mongodb::bson::oid::ObjectId;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -12,7 +11,7 @@ use crate::repository::BeerRepository;
 #[derive(OpenApi)]
 #[openapi(
   info(description = "Beer API", license(name = "MIT")),
-  paths(all_beers, single_beer, create_beer, update_beer, delete_beer),
+  paths(all_beers, single_beer, create_beer, delete_beer),
   components(schemas(Beer, PartialBeer)),
   tags((name = "crate", description = "Beer API endpoints"))
 )]
@@ -25,7 +24,6 @@ pub fn configure(db: Data<BeerRepository>) -> impl FnOnce(&mut ServiceConfig) {
       .service(all_beers)
       .service(single_beer)
       .service(create_beer)
-      .service(update_beer)
       .service(delete_beer)
       .service(
         SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", ApiDoc::openapi()),
@@ -108,38 +106,6 @@ pub async fn create_beer(
       .insert_header((LOCATION, format!("/beers/{id}")))
       .json(created),
   )
-}
-
-#[utoipa::path(
-responses(
-    (status = 200, description = "beer was updated"),
-    (status = 204, description = "beer does not exist"),
-    (status = 400, description = "id is invalid"),
-    ),
-  params(
-    ("id" = String, Path, description = "id of the beer"),
-  ),
-  request_body(content = PartialBeer, description = "beer to update"),
-)]
-#[put("/beers/{id}")]
-pub async fn update_beer(
-  db: Data<BeerRepository>,
-  path: Path<String>,
-  body: Json<PartialBeer>,
-) -> Result<impl Responder> {
-  let id = path.object_id()?;
-  let beer = Beer {
-    id: Some(id),
-    ..Beer::from_partial(body.into_inner())
-  };
-  let updated = db
-    .update_beer(beer)
-    .map_err(error::ErrorInternalServerError)
-    .await?;
-  Ok(match updated {
-    None => HttpResponse::NoContent().finish(),
-    Some(beer) => HttpResponse::Ok().json(beer),
-  })
 }
 
 trait ExtractFromPath {
