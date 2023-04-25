@@ -1,9 +1,10 @@
 FROM rust:1.63 as builder
 WORKDIR /usr/src/app
 RUN cargo init
+ADD Cargo.toml Cargo.lock ./
+RUN cargo build
 # Real build
 COPY ./src ./src
-ADD Cargo.toml Cargo.lock ./
 RUN cargo build --release
 
 FROM ubuntu:latest
