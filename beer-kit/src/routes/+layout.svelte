@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-  <title>🍺 Beer App 🍺</title>
+  <title>Beer App</title>
 </svelte:head>
 
 <QueryClientProvider {client}>
