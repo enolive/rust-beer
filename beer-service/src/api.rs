@@ -56,7 +56,7 @@ responses(
   (status = 200, description = "stream of beers", body = Beer, content_type = "application/x-ndjson"),
 ),
 )]
-#[get("/beers/ssr")]
+#[get("/beers/stream")]
 pub async fn stream_beers(db: Data<BeerRepository>) -> Result<impl Responder> {
   let cursor = db
     .stream_all_beers()

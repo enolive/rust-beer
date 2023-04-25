@@ -3,7 +3,7 @@
 GET http://localhost:8080/beers
 
 ### ssr
-GET http://localhost:8080/beers/ssr
+GET http://localhost:8080/beers/stream
 
 ### find single beer
 
