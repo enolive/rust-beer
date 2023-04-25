@@ -19,15 +19,15 @@ Content-Type: application/json
 
 ### delete a beer
 
-DELETE http://localhost:8080/beers/6431690822ccd9b1501f36a6
+DELETE http://localhost:8080/beers/6446862e77e443bb9235cab5
 
 ### update a beer
 
-PUT http://localhost:8080/beers/6431a2f6d0b5fb5433f45c89
+PUT http://localhost:8080/beers/6446862e77e443bb9235cab5
 Content-Type: application/json
 
 {
   "brand": "Schanzenbräu",
   "name": "Schanze Rot",
-  "strength": 4.8
+  "strength": 4.7
 }
