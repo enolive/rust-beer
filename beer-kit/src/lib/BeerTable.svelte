@@ -40,7 +40,7 @@
         <td>{beer.name}</td>
         <td>{beer.strength}</td>
         <td>
-          <a class="btn variant-filled" href="/edit/{beer?._id.$oid}">
+          <a class="btn variant-filled" href="/edit/{beer?.id}">
             Edit
           </a>
           <button class="btn variant-filled" on:click={_ => handleDelete(beer)}>

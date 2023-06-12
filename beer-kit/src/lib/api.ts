@@ -18,7 +18,7 @@ export const getApi = (url: string) => {
       return await response.json() as Beer
     },
     async updateBeer(beer: Beer): Promise<Beer> {
-      const id = guardNotNull(beer._id).$oid
+      const id = guardNotNull(beer.id)
       const response = await fetch(`${apiUrl}/${id}`,
         {
           method: 'PUT',

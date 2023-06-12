@@ -29,7 +29,7 @@
 
   async function handleDeleteBeer(e: CustomEvent) {
     const beer: Beer = e.detail
-    await api.deleteBeer(guardNotNull(beer._id).$oid)
+    await api.deleteBeer(guardNotNull(beer.id))
     await client.invalidateQueries({queryKey: ['beers']})
   }
 </script>

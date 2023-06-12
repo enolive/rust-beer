@@ -1,5 +1,5 @@
 export interface Beer {
-  _id?: { $oid: string }
+  id?: string
   brand: string
   name: string
   strength: number
